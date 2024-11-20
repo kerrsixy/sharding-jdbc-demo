@@ -1,0 +1,48 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource: # 数据源配置，可配置多个data_source_name
+      names: ds0,ds1
+      ds0: # <!!数据库连接池实现类> `!!`表示实例化该类
+        type: com.alibaba.druid.pool.DruidDataSource # 数据库连接池
+        driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动类名
+        url: jdbc:mysql://localhost:3306/database1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false # 数据库url连接，如果是HikariCP连接池，需要换成jdbcurl
+        username: root # 数据库用户名
+        password: root # 数据库密码
+      ds1: # <!!数据库连接池实现类> `!!`表示实例化该类
+        type: com.alibaba.druid.pool.DruidDataSource # 数据库连接池
+        driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动类名
+        url: jdbc:mysql://localhost:3306/database2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false # 数据库url连接，如果是HikariCP连接池，需要换成jdbcurl
+        username: root # 数据库用户名
+        password: root # 数据库密码
+    sharding:
+      # 唯一库数据
+      default-data-source-name: ds0
+      # 分库
+      default-database-strategy:
+        inline: # 行表达式分片策略
+          # 添加数据分库字段(根据字段插入数据到那个表)
+          sharding-column: id
+          # 分片算法表达式 => 通过id取余
+          algorithm-expression: ds$->{id % 2}
+      # 分表
+      tables:
+        t_user:
+          actual-data-nodes: ds$->{0..1}.t_user_$->{1..2} #由数据源名 + 表名组成，以小数点分隔。多个表以逗号分隔，支持inline表达式。缺省表示使用已知数据源与逻辑表名称生成数据节点，用于广播表（即每个库中都需要一个同样的表用于关联查询，多为字典表）或只分库不分表且所有库的表结构完全一致的情况
+          key-generator:
+            column: id # 自增列名称，缺省表示不使用自增主键生成器
+            type: SNOWFLAKE  #自增列值生成器类型，缺省表示使用默认自增列值生成器。可使用用户自定义的列值生成器或选择内置类型：SNOWFLAKE/UUID
+            # props: #属性配置, 注意：使用SNOWFLAKE算法，需要配置worker.id与max.tolerate.time.difference.milliseconds属性。若使用此算法生成值作分片值，建议配置max.vibration.offset属性
+          table-strategy: # 分表策略，同分库策略
+            inline: # 行表达式分片策略
+              # 分片列名称
+              sharding-column: id
+              # 分片算法表达式 => 通过id取余
+              algorithm-expression: t_user_$->{id % 2 + 1}
+    props: # 属性配置
+      sql:
+        show: true #是否开启SQL显示，默认值: false
+      # executor.size: #工作线程数量，默认值: CPU核数
+      # max.connections.size.per.query: # 每个查询可以打开的最大连接数量,默认为1
+      # check.table.metadata.enabled: #是否在启动时检查分表元数据一致性，默认值: false

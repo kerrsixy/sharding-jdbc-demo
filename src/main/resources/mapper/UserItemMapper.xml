@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjp.shardingjdbcdemo.mapper.UserItemMapper">
+    <select id="selectList" resultType="com.zjp.shardingjdbcdemo.entity.UserItemVo">
+        SELECT i.*, o.*
+        FROM t_user o
+                 JOIN t_user_item i ON o.id = i.user_id
+        WHERE o.id IN (10, 11);
+    </select>
+</mapper>

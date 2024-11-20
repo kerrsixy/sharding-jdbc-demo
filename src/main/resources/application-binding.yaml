@@ -1,0 +1,51 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource:
+      names: ds0,ds1
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/database1?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false
+        username: root
+        password: root
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/database2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false
+        username: root
+        password: root
+    sharding:
+      default-data-source-name: ds0
+      default-database-strategy:
+        inline:
+          sharding-column: id
+          algorithm-expression: ds$->{id % 2}
+      tables:
+        t_user:
+          actual-data-nodes: ds$->{0..1}.t_user_$->{1..2}
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          table-strategy:
+            inline:
+              sharding-column: id
+              algorithm-expression: t_user_$->{id % 2 + 1}
+        t_user_item:
+          actual-data-nodes: ds$->{0..1}.t_user_item_$->{1..2}
+          key-generator:
+            column: item_id
+            type: SNOWFLAKE
+          table-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: t_user_item_$->{user_id % 2 + 1}
+      binding-tables: # 绑定表规则列表
+        - t_user,t_user_item
+    props: # 属性配置
+      sql:
+        show: true #是否开启SQL显示，默认值: false
+      # executor.size: #工作线程数量，默认值: CPU核数
+      # max.connections.size.per.query: # 每个查询可以打开的最大连接数量,默认为1
+      # check.table.metadata.enabled: #是否在启动时检查分表元数据一致性，默认值: false

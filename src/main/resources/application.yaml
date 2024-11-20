@@ -1,0 +1,21 @@
+server:
+  port: 18080
+spring:
+  application:
+    name: sharding-jdbc-demo
+  profiles:
+    # precise: 精确分片
+    # range: 范围分片
+    # inline： 行表达式分片策略（inline）
+    # complex： 混合分片策略（complex）
+    # hint： Hint策略
+    # none： 不分片策略
+    # binding： 绑定表
+    # broadcast： 广播表
+    active: binding
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
