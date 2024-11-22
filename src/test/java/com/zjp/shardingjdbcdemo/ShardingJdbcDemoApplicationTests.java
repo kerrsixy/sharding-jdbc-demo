@@ -195,4 +195,41 @@ public class ShardingJdbcDemoApplicationTests {
         System.out.println("Lower bound type: " + lowerBoundType);
         System.out.println("Upper bound type: " + upperBoundType);
     }
+
+    /**
+     * 测试集群保存
+     */
+    @Test
+    public void testClusterSave() {
+        Date birthday = FAKER.date().birthday(18, 100);
+        User user = new User()
+                .setName(FAKER.name().fullName())
+                .setAge(Year.now().getValue() - birthday.getYear() - 1900)
+                .setSalary((RANDOM.nextInt(500000) + 500000) / 100.0)
+                .setBirthday(birthday.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        userService.save(user);
+    }
+
+    /**
+     * 测试集群读取
+     */
+    @Test
+    public void testClusterGet() {
+        List<User> list = userService.list();
+        log.info("查询结果为：{}", list);
+    }
+
+    /**
+     * 测试集群强制读主库
+     */
+    @Test
+    public void testClusterHint() {
+        try (HintManager hintManager = HintManager.getInstance();) {
+            hintManager.setMasterRouteOnly();
+            List<User> list = userService.list();
+            log.info("查询结果为：{}", list);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

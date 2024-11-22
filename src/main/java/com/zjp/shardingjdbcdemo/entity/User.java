@@ -51,6 +51,4 @@ public class User implements Serializable {
      * 用户生日
      */
     private LocalDateTime birthday;
-
-
 }

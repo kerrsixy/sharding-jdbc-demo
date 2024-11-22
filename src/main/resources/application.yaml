@@ -12,7 +12,8 @@ spring:
     # none： 不分片策略
     # binding： 绑定表
     # broadcast： 广播表
-    active: binding
+    # cluster： 读写分离
+    active: cluster
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml

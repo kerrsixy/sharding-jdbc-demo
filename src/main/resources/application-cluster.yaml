@@ -1,0 +1,40 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource:
+      names: master,slave1
+      master:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.88.131:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false
+        username: root
+        password: root
+      slave1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.88.132:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false
+        username: root
+        password: root
+      slave2:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.88.133:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false
+        username: root
+        password: root
+    sharding:
+      master-slave-rules:
+        master:
+          name: # 读写分离数据源名称
+          master-data-source-name: master # 主库数据源名称
+          slave-data-source-names: # 从库数据源名称列表
+            - slave1
+          loadBalanceAlgorithmType: MY_LOAD_BALANCE # 从库负载均衡算法类型，可选值：ROUND_ROBIN，RANDOM。若`loadBalanceAlgorithmClassName`存在则忽略该配置
+          props: # 读写分离负载算法的属性配置
+            weight.formula: "weight_random()"
+    props: # 属性配置
+      sql:
+        show: true #是否开启SQL显示，默认值: false
+      # executor.size: #工作线程数量，默认值: CPU核数
+      # max.connections.size.per.query: # 每个查询可以打开的最大连接数量,默认为1
+      # check.table.metadata.enabled: #是否在启动时检查分表元数据一致性，默认值: false
