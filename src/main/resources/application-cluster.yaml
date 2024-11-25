@@ -29,6 +29,7 @@ spring:
           master-data-source-name: master # 主库数据源名称
           slave-data-source-names: # 从库数据源名称列表
             - slave1
+            - slave2
           loadBalanceAlgorithmType: MY_LOAD_BALANCE # 从库负载均衡算法类型，可选值：ROUND_ROBIN，RANDOM。若`loadBalanceAlgorithmClassName`存在则忽略该配置
           props: # 读写分离负载算法的属性配置
             weight.formula: "weight_random()"
